@@ -112,8 +112,12 @@ void PlanningWorldTpl<S>::attachObject(const std::string &name,
                                        const std::string &art_name, int link_id,
                                        const std::vector<std::string> &touch_links) {
   const auto T_world_obj = object_map_.at(name)->pose;
-  const auto T_world_link =
+  // const auto T_world_link =
+  //     planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
+  const auto T_link_wrt_base =
       planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
+  const auto T_world_link = planned_articulation_map_.at(art_name)->getBasePose().toIsometry() *
+                            T_link_wrt_base;
   attachObject(name, art_name, link_id, Pose<S>(T_world_link.inverse() * T_world_obj),
                touch_links);
 }
@@ -122,8 +126,12 @@ template <typename S>
 void PlanningWorldTpl<S>::attachObject(const std::string &name,
                                        const std::string &art_name, int link_id) {
   const auto T_world_obj = object_map_.at(name)->pose;
-  const auto T_world_link =
+  // const auto T_world_link =
+  //     planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
+  const auto T_link_wrt_base =
       planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
+  const auto T_world_link = planned_articulation_map_.at(art_name)->getBasePose().toIsometry() *
+                            T_link_wrt_base;
   attachObject(name, art_name, link_id, Pose<S>(T_world_link.inverse() * T_world_obj));
 }
 
