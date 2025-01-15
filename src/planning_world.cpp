@@ -13,7 +13,7 @@ S getFCLContactMaxPenetration(const fcl::CollisionResult<S> &result) {
   S max_penetration = std::numeric_limits<S>::min();
   if (result.numContacts() == 0) return 1;
 
-  for (int i = 0; i < result.numContacts(); ++i) {
+  for (size_t i = 0; i < result.numContacts(); ++i) {
     const auto &contact = result.getContact(i);
     max_penetration = std::max(max_penetration, contact.penetration_depth);
   }
@@ -549,8 +549,8 @@ std::vector<WorldCollisionResultTpl<S>> PlanningWorldTpl<S>::checkSceneCollision
     if (auto it = object_map_.find(name); it != object_map_.end())
       scene_objects.push_back(it->second);
   }
-  for (int i = 0; i < scene_object_names.size(); i++) {
-    for (int j = i + 1; j < scene_object_names.size(); j++) {
+  for (size_t i = 0; i < scene_object_names.size(); i++) {
+    for (size_t j = i + 1; j < scene_object_names.size(); j++) {
       if (auto type = acm_->getAllowedCollision(scene_object_names[i], scene_object_names[j]);
           !type || type == collision_detection::AllowedCollision::NEVER) {
         result.clear();
@@ -719,8 +719,8 @@ std::vector<WorldDistanceResultTpl<S>> PlanningWorldTpl<S>::distanceScene(
         if (auto it = object_map_.find(name); it != object_map_.end())
             scene_objects.push_back(it->second);
     }
-    for (int i = 0; i < scene_object_names.size(); i++) {
-        for (int j = i + 1; j < scene_object_names.size(); j++) {
+    for (size_t i = 0; i < scene_object_names.size(); i++) {
+        for (size_t j = i + 1; j < scene_object_names.size(); j++) {
             if (auto type = acm_->getAllowedCollision(scene_object_names[i], scene_object_names[j]);
                 !type || type == collision_detection::AllowedCollision::NEVER) {
                 result.clear();
