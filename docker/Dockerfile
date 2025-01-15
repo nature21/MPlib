@@ -1,5 +1,13 @@
 FROM quay.io/pypa/manylinux2014_x86_64
 
+# ARG HTTP_PROXY
+# ARG HTTPS_PROXY
+# ARG NO_PROXY
+
+# ENV http_proxy=$HTTP_PROXY
+# ENV https_proxy=$HTTPS_PROXY
+# ENV no_proxy=$NO_PROXY
+
 # basic development tools
 RUN yum update -y && yum install -y wget git && yum upgrade -y && yum clean all
 WORKDIR /workspace
