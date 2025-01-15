@@ -10,7 +10,9 @@ namespace mplib {
 
 template <typename S>
 S getFCLContactMaxPenetration(const fcl::CollisionResult<S> &result) {
-  S max_penetration = -1;
+  S max_penetration = std::numeric_limits<S>::min();
+  if (result.numContacts() == 0) return 1;
+
   for (int i = 0; i < result.numContacts(); ++i) {
     const auto &contact = result.getContact(i);
     max_penetration = std::max(max_penetration, contact.penetration_depth);
@@ -92,12 +94,16 @@ void PlanningWorldTpl<S>::addObject(const std::string &name,
 template <typename S>
 void PlanningWorldTpl<S>::addPointCloud(const std::string &name,
                                         const MatrixX3<S> &vertices,
-                                        double resolution) {
+                                        double resolution,
+                                        const Pose<S> &pose) {
   auto tree = std::make_shared<octomap::OcTree>(resolution);
   for (const auto &row : vertices.rowwise())
     tree->updateNode(octomap::point3d(row(0), row(1), row(2)), true);
-  addObject(name,
-            std::make_shared<CollisionObject>(std::make_shared<fcl::OcTree<S>>(tree)));
+  auto cobject = std::make_shared<CollisionObject>(std::make_shared<fcl::OcTree<S>>(tree));
+  addObject(
+    std::make_shared<FCLObject>(
+      name, pose, std::vector<CollisionObjectPtr> {cobject}, std::vector<Pose<S>> {Pose<S>()}
+  ));
 }
 
 template <typename S>
@@ -116,12 +122,8 @@ void PlanningWorldTpl<S>::attachObject(const std::string &name,
                                        const std::string &art_name, int link_id,
                                        const std::vector<std::string> &touch_links) {
   const auto T_world_obj = object_map_.at(name)->pose;
-  // const auto T_world_link =
-  //     planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
-  const auto T_link_wrt_base =
-      planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
-  const auto T_world_link = planned_articulation_map_.at(art_name)->getBasePose().toIsometry() *
-                            T_link_wrt_base;
+  const auto T_world_link =
+      planned_articulation_map_.at(art_name)->getLinkGlobalPose(link_id);
   attachObject(name, art_name, link_id, Pose<S>(T_world_link.inverse() * T_world_obj),
                touch_links);
 }
@@ -130,12 +132,8 @@ template <typename S>
 void PlanningWorldTpl<S>::attachObject(const std::string &name,
                                        const std::string &art_name, int link_id) {
   const auto T_world_obj = object_map_.at(name)->pose;
-  // const auto T_world_link =
-  //     planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
-  const auto T_link_wrt_base =
-      planned_articulation_map_.at(art_name)->getPinocchioModel()->getLinkPose(link_id);
-  const auto T_world_link = planned_articulation_map_.at(art_name)->getBasePose().toIsometry() *
-                            T_link_wrt_base;
+  const auto T_world_link =
+      planned_articulation_map_.at(art_name)->getLinkGlobalPose(link_id);
   attachObject(name, art_name, link_id, Pose<S>(T_world_link.inverse() * T_world_obj));
 }
 

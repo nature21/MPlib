@@ -65,10 +65,7 @@ class AttachedBodyTpl {
 
   /// @brief Gets the global pose of the articulation link that this body is attached to
   Isometry3<S> getAttachedLinkGlobalPose() const {
-    const auto pose_wrt_base = pinocchio_model_->getLinkPose(attached_link_id_);
-    const auto base_pose = attached_articulation_->getBasePose().toIsometry();
-    return base_pose * pose_wrt_base;
-    // return pinocchio_model_->getLinkPose(attached_link_id_);
+    return attached_articulation_->getLinkGlobalPose(attached_link_id_);
   }
 
   /// @brief Gets the global pose of the attached object
